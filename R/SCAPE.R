@@ -70,17 +70,6 @@ ExpressGenes <- list(
 )
 
 
-<<<<<<< HEAD
-
-
-
-
-=======
-
-
-
-
->>>>>>> de93b641d163a4fb71c34dbe9fbfffd16f487b28
 tflist <- diffexp  %>% dplyr::filter(gene %in% tf$Symbol)
 #whichdiff peaks to use.. perhaps caompare to all cells.
 DefaultAssay(atac.object) <- 'peaks'
@@ -168,7 +157,7 @@ nodes$lig <- pmap(edges$tf2lig,function(to,...){
 
 
 # Lig to Rec --------------------------------------------------------------
-<<<<<<< HEAD
+
 
 
 #Perhaps add filter for Source and Evidence.
@@ -189,7 +178,6 @@ nodes$receptor <- pmap(edges$lig2rec,function(to,...){
 
 
 
-=======
 
 
 #Perhaps add filter for Source and Evidence.
@@ -210,26 +198,13 @@ nodes$receptor <- pmap(edges$lig2rec,function(to,...){
 
 
 
->>>>>>> de93b641d163a4fb71c34dbe9fbfffd16f487b28
 # Rec to cell -------------------------------------------------------------
 edges$rec2cell <-
   pmap(nodes$receptor,function(name,...){
     data.frame(from=name,to=as.character(receptor.cell),edgetype='rec2cell')
   }
   ) %>% bind_rows()
-<<<<<<< HEAD
 
-
-
-
-
-=======
-
-
-
-
-
->>>>>>> de93b641d163a4fb71c34dbe9fbfffd16f487b28
 ####################################### OLD CODE #########################
 
   # ### Add receptors  to cells
@@ -284,26 +259,19 @@ nodeLabels <- mapVisualProperty('node label','id','p')
 
 #and then create the style
 createVisualStyle(style.name, defaults, list(nodeLabels))
-<<<<<<< HEAD
 
 #finsh by applying the style
 setVisualStyle(style.name)
 
-=======
+
 
 #finsh by applying the style
 setVisualStyle(style.name)
 
->>>>>>> de93b641d163a4fb71c34dbe9fbfffd16f487b28
 setNodeColorMapping('color',mapping.type = 'p')
 
 getLayoutNames()
 layoutNetwork('force-directed defaultSpringLength=70 defaultSpringCoefficient=0.000003')
-<<<<<<< HEAD
-
-layoutNetwork('hierarchical')
-=======
->>>>>>> de93b641d163a4fb71c34dbe9fbfffd16f487b28
 
 
 # getMotifPeaks -----------------------------------------------------------
