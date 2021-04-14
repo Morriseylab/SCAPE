@@ -19,23 +19,15 @@ library(RCy3)
 
 
 
-# DataSets ----------------------------------------------------------------
-
-#this should be a list, make a function to crerate it
-#rectf <- readr::read_csv('~/dsdata/NGSshare/FANTOM5/Mm_PairsRecTF.csv')
-recligDB <- readr::read_csv('~/dsdata/NGSshare/FANTOM5/Mm_PairsLigRec.csv')
-tf <- readr::read_tsv('~/dsdata/NGSshare/AnimalTFDB/Mus_musculus_TF_v3.txt')
-mm2hs <- readr::read_csv('~/dsdata/NGSshare/homologs/mouse_human.csv')
-
-
-
-rna.object <- readRDS("~/dsdata/projects/Morrisey/Jarod/scRNA/JZ_lung_timeseries/Adult/seuratv4/Seurat.RDS")
-atac.object <- readRDS("~/dsdata/projects/Morrisey/JohnLeach/scATAC/Adult/Signac/Signac.RDS")
-ligand.cell=10 #Amp
-receptor.cell=8 #MANC
-min.pct = .2
-
-
+#'RunScape
+#' @param atac.object ATAC Seurat object with a peaks assay
+#' @param rna.object RNASeurat object
+#' @param signal.cell Ident value for cell that will singal
+#' @param receive.cell Ident value for cell that will singal
+#' @param min.pct
+#' @param annoDB A list of tables of various annotation. See CreateAnnoDB
+#' @import dplyr tidyr Seurat
+#' @export
 
 runSCAPE <- function(atac.object=NULL,
                      rna.object=NULL,
@@ -44,11 +36,6 @@ runSCAPE <- function(atac.object=NULL,
                      min.pct=.25,
                      annoDB=NULL
 ){
-
-#make checks..
-
-
-
 
 
 
