@@ -18,11 +18,12 @@ library(EnsDb.Mmusculus.v79)
 library(RCy3)
 
 
-pal <- c('red','blue','green','orange')
 
+# DataSets ----------------------------------------------------------------
+
+#this should be a list, make a function to crerate it
 #rectf <- readr::read_csv('~/dsdata/NGSshare/FANTOM5/Mm_PairsRecTF.csv')
 recligDB <- readr::read_csv('~/dsdata/NGSshare/FANTOM5/Mm_PairsLigRec.csv')
-
 tf <- readr::read_tsv('~/dsdata/NGSshare/AnimalTFDB/Mus_musculus_TF_v3.txt')
 mm2hs <- readr::read_csv('~/dsdata/NGSshare/homologs/mouse_human.csv')
 
@@ -30,8 +31,8 @@ mm2hs <- readr::read_csv('~/dsdata/NGSshare/homologs/mouse_human.csv')
 
 rna.object <- readRDS("~/dsdata/projects/Morrisey/Jarod/scRNA/JZ_lung_timeseries/Adult/seuratv4/Seurat.RDS")
 atac.object <- readRDS("~/dsdata/projects/Morrisey/JohnLeach/scATAC/Adult/Signac/Signac.RDS")
-ligand.cell=10
-receptor.cell=8
+ligand.cell=10 #Amp
+receptor.cell=8 #MANC
 min.pct = .2
 
 
@@ -40,16 +41,16 @@ runSCAPE <- function(atac.object=NULL,
                      rna.object=NULL,
                      ligand.cell=NULL,
                      receptor.cell=NULL,
-                     min.pct=.25
+                     min.pct=.25,
+                     annoDB=NULL
 ){
 
+#make checks..
 
 
-}
 
 
 
-# Compute Diff expression for peaks ---------------------------------------
 
 
 # Compute Diffexpression --------------------------------------------------
@@ -100,10 +101,6 @@ unname()%>% as.data.frame(.) %>% mutate(peakid = paste0(seqnames,':',start,'-',e
 
 
 
-
-
-
-
 motifs <- FindMotifs(object = atac.object,
                      features =sigpeaks) %>%
   mutate(p_val_adj = p.adjust(pvalue),motif.name = gsub('\\(var.2\\)','',motif.name)) %>%
@@ -116,16 +113,20 @@ motifs <- FindMotifs(object = atac.object,
 nodes <- list()
 edges <- list()
 
+
+
 #make Nodes for the cells.
 nodes$cell <- map(c(ligand.cell,receptor.cell),function(c){
-  data.frame(name=as.character(c),type='celltype',size=10,color=pal[1])
+  data.frame(name=as.character(c),type='celltype')
 }) %>% bind_rows()
 
 
 
+# Cell To TF --------------------------------------------------------------
+
 #Nodes for TFs
 nodes$tf <- pmap(motifs,function(motif,motif.name,...){
-  data.frame(name=motif.name,type='TF',size=8,color=pal[2])
+  data.frame(name=motif.name,type='TF')
 }
 ) %>% bind_rows()
 
@@ -139,8 +140,6 @@ edges$cell2tf <- pmap(motifs,function(motif.name,...){
 
 # TFs to Ligands ----------------------------------------------------------
 
-
-
 edges$tf2lig <- pmap(motifs,function(motif,motif.name,...){
   motif.peaks <- getMotifPeaks(atac.object,motif)
   peaks.ann %>% dplyr::filter(peakid %in% motif.peaks & !is.na(gene_name) & gene_name %in% recligDB$ligand & gene_name %in% ExpressGenes$ligand.cell) %>%
@@ -148,10 +147,9 @@ edges$tf2lig <- pmap(motifs,function(motif,motif.name,...){
 }
 ) %>% bind_rows()
 
-view(edges$tf2lig)
 
 nodes$lig <- pmap(edges$tf2lig,function(to,...){
-  data.frame(name=to,type='ligand',size=8,color=pal[2])
+  data.frame(name=to,type='ligand')
 }) %>% bind_rows() %>% distinct()
 
 
@@ -159,9 +157,6 @@ nodes$lig <- pmap(edges$tf2lig,function(to,...){
 # Lig to Rec --------------------------------------------------------------
 
 
-
-#Perhaps add filter for Source and Evidence.
-
 edges$lig2rec <-
   pmap(nodes$lig,function(name,...){
  name <- enquo(name)
@@ -173,27 +168,7 @@ edges$lig2rec <-
 ) %>% bind_rows()
 
 nodes$receptor <- pmap(edges$lig2rec,function(to,...){
-  data.frame(name=to,type='receptor',size=8,color=pal[4])
-}) %>% bind_rows() %>% distinct()
-
-
-
-
-
-#Perhaps add filter for Source and Evidence.
-
-edges$lig2rec <-
-  pmap(nodes$lig,function(name,...){
- name <- enquo(name)
- recligDB %>%  dplyr::filter(ligand %in% !!name & receptor %in% ExpressGenes$receptor.cell) %>%
-   mutate(from=ligand,to=receptor,edgetype='lig2rec') %>%
-   dplyr::select(from,to,edgetype) %>% distinct()
-
-}
-) %>% bind_rows()
-
-nodes$receptor <- pmap(edges$lig2rec,function(to,...){
-  data.frame(name=to,type='receptor',size=8,color=pal[3])
+  data.frame(name=to,type='receptor')
 }) %>% bind_rows() %>% distinct()
 
 
@@ -205,41 +180,6 @@ edges$rec2cell <-
   }
   ) %>% bind_rows()
 
-####################################### OLD CODE #########################
-
-  # ### Add receptors  to cells
-  # nodes <- rbind(nodes, mm %>% dplyr::filter(receptor %in% genesExprss) %>% mutate(name=receptor, type='receptor',size=8,color=pal[4]) %>% dplyr::select(name,type,size,color))
-  # edges <- rbind(edges,mm %>% dplyr::filter(receptor %in% genesExprss) %>% mutate(from=receptor, to=motifRes[[n]]$celltype, edgetype='rec2cell') %>% dplyr::select(from,to,edgetype))
-  #
-  # rec2tf <- rectf %>% dplyr::filter(receptor %in% genesExprss & tf %in% genesExprss) %>%
-  #   mutate(from=receptor, to=tf, edgetype='rec2tf')  %>%
-  #   dplyr::select(from,to,edgetype) %>%
-  #   distinct()
-  #
-  # for(tf in rec2tf$to){
-  #   m <- motifRes[[n]]$motifs %>% dplyr::filter(motif.name==tf) %>% pull(motif)
-  #   if(length(m)==0){next}
-  #   t1 <- motif[,m]==1
-  #   if(length(m)==1){
-  #     geneid <- motifRes[[n]]$peaks.ann %>% dplyr::filter(peakid %in% names(t1)[which(t1==TRUE)]) %>% pull(gene_id)
-  #   }else{
-  #     geneid <- motifRes[[n]]$peaks.ann %>% dplyr::filter(peakid %in% rownames(t1)[(Matrix::rowSums(t1) > 0L)==TRUE]) %>% pull(gene_id)
-  #   }
-  #
-  #   #nodes <- rbind(nodes, egoBP@result %>% mutate(name=Description, type='GO',size=8,color=pal[4]) %>% dplyr::select(name,type,size,color))
-  #   #edges <- rbind(edges,egoBP@result %>% mutate(from=tf, to=Description, edgetype='tf2GO') %>% dplyr::select(from,to,edgetype))
-  #
-  # }
-  #
-  #
-  # nodes <- rbind(nodes, rec2tf %>% mutate(type='receptor',size=8,color=pal[4]) %>% dplyr::rename(name=from) %>% dplyr::select(name,type,size,color))
-  # nodes <- rbind(nodes, rec2tf %>% mutate(type='TF',size=8,color=pal[2]) %>% dplyr::rename(name=to) %>% dplyr::select(name,type,size,color))
-  # edges <- rbind(edges,rec2tf)
-  # edges <- rbind(edges,rec2tf %>% mutate(from=to, to=motifRes[[n]]$celltype, edgetype='tf2cell'))
-
-
-######################################################################
-
 E <- bind_rows(edges) %>% distinct()
 N <- bind_rows(nodes) %>% distinct()
 
@@ -247,31 +187,34 @@ N <- bind_rows(nodes) %>% distinct()
 net <- igraph::graph_from_data_frame(d=E, vertices=N, directed=T)
 net <- igraph::simplify(net, remove.multiple = F, remove.loops = T)
 
+return(net)
+
+}
+
+
 cytoscapePing()
 createNetworkFromIgraph(net,"myIgraph")
 
-style.name = "myStyle"
-defaults <- list(NODE_SHAPE="diamond",
+addSCAPEStyle <- function(node.col=c('#8804e1','#e1210c','#2074f0','#ff9800')){
+  style.name = "myStyle"
+  defaults <- list(
                  NODE_SIZE=30,
                  EDGE_TRANSPARENCY=120,
-                 NODE_LABEL_POSITION="W,E,c,0.00,0.00")
-nodeLabels <- mapVisualProperty('node label','id','p')
+                 NODE_LABEL_POSITION="N,S,c,0.00,0.00")
+  nodeLabels <- mapVisualProperty('node label','id','p')
+  nodeColors <- mapVisualProperty('node fill color','type','d',c('celltype','TF','ligand','receptor'), node.col)
+  nodeShape <- mapVisualProperty('node shape','type','d',c('celltype','TF','ligand','receptor'),c('ELLIPSE','OCTAGON','DIAMOND','VEE'))
+
 
 #and then create the style
-createVisualStyle(style.name, defaults, list(nodeLabels))
+createVisualStyle(style.name, defaults, list(nodeLabels,nodeColors,nodeShape))
 
 #finsh by applying the style
 setVisualStyle(style.name)
+}
 
 
 
-#finsh by applying the style
-setVisualStyle(style.name)
-
-setNodeColorMapping('color',mapping.type = 'p')
-
-getLayoutNames()
-layoutNetwork('force-directed defaultSpringLength=70 defaultSpringCoefficient=0.000003')
 
 
 # getMotifPeaks -----------------------------------------------------------
