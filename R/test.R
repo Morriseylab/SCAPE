@@ -12,4 +12,4 @@ mm2hs <- readr::read_csv('~/dsdata/NGSshare/homologs/mouse_human.csv')
 
 
 
-runSCAPE()
+runSCAPE(atac.object,rna.object)
