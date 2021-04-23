@@ -9,10 +9,12 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<span style="color: red;">**WARNING Do not use!!! Not fully functional</span>
+
 
 # SCAPE 0.1.0
 
-SCAPE is a tool that will create a network like visualization of teh following interaction between 2 cells/cluster using scRNA-seq and scATAC-seq data. 
+SCAPE is a tool that will create a network like visualization of the following interaction between 2 cells/cluster using scRNA-seq and scATAC-seq data. 
 
 1. Transcription factor (TF) to ligand gene
 2. Ligand to Rececptor
