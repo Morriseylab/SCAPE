@@ -1,24 +1,3 @@
-library(Signac)
-library(Seurat)
-library(tidyverse)
-
-library(GenomeInfoDb)
-
-library(ggplot2)
-library(patchwork)
-library(JASPAR2020)
-library(TFBSTools)
-
-library(ChIPpeakAnno)
-
-
-library(BSgenome.Mmusculus.UCSC.mm10)
-library(EnsDb.Mmusculus.v79)
-
-library(RCy3)
-
-
-
 #'RunScape
 #' @param atac.object ATAC Seurat object with a peaks assay
 #' @param rna.object RNASeurat object
@@ -26,7 +5,7 @@ library(RCy3)
 #' @param receive.cell Ident value for cell that will singal
 #' @param min.pct
 #' @param annoDB A list of tables of various annotation. See CreateAnnoDB
-#' @import dplyr tidyr Seurat
+#' @import Signac dplyr tidyr Seurat ChIPpeakAnno igraph
 #' @export
 
 runSCAPE <- function(atac.object=NULL,
@@ -178,9 +157,6 @@ return(net)
 
 }
 
-
-cytoscapePing()
-createNetworkFromIgraph(net,"myIgraph")
 
 addSCAPEStyle <- function(node.col=c('#8804e1','#e1210c','#2074f0','#ff9800')){
   style.name = "myStyle"
