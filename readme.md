@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 # WARNING Do not use!!! Not fully functional
+=======
+<span style="color: red;">\*\*WARNING Do not use!!! Not fully
+functional</span>
+>>>>>>> 3d45abd0c95ce4177165719ba251a4de03d765aa
 
 # SCAPE 0.1.0
 
