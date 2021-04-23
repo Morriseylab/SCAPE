@@ -1,6 +1,8 @@
+# WARNING Do not use!!! Not fully functional
+
 # SCAPE 0.1.0
 
-SCAPE is a tool that will create a network like visualization of teh
+SCAPE is a tool that will create a network like visualization of the
 following interaction between 2 cells/cluster using scRNA-seq and
 scATAC-seq data.
 
